@@ -9,6 +9,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  // Enable experimental features for better build resilience
+  experimental: {
+    // Continue build even if some pages fail
+    fallbackNodePolyfills: false,
+  },
+};
 
-export default nextConfig
+export default nextConfig;

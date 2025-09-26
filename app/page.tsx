@@ -40,16 +40,43 @@ function eventStatus(start: string, end: string) {
 
 export default async function HomePage() {
   const slug = departmentSlugFromCode(DEPARTMENT_CODE);
-  const dept = slug ? await getDepartment(slug) : undefined;
-  const [eventsRes, staffsRes] = slug
-    ? await Promise.all([
-        listDepartmentEvents(slug, { limit: 6, ordering: "-eventStartDate" }),
-        listDepartmentStaffs(slug, { limit: 20, ordering: "displayOrder" }),
-      ])
-    : [undefined, undefined];
-  const noticesRes = dept
-    ? await listPublicNotices({ limit: 4, ordering: "-publishedAt", department: dept.uuid })
-    : undefined;
+
+  // Handle potential API failures during build gracefully
+  let dept, eventsRes, staffsRes, noticesRes;
+
+  try {
+    dept = slug ? await getDepartment(slug) : undefined;
+  } catch (error) {
+    console.warn("Failed to fetch department:", error);
+    dept = undefined;
+  }
+
+  try {
+    [eventsRes, staffsRes] = slug
+      ? await Promise.all([
+          listDepartmentEvents(slug, { limit: 6, ordering: "-eventStartDate" }),
+          listDepartmentStaffs(slug, { limit: 20, ordering: "displayOrder" }),
+        ])
+      : [undefined, undefined];
+  } catch (error) {
+    console.warn("Failed to fetch events/staff:", error);
+    eventsRes = undefined;
+    staffsRes = undefined;
+  }
+
+  try {
+    noticesRes = dept
+      ? await listPublicNotices({
+          limit: 4,
+          ordering: "-publishedAt",
+          department: dept.uuid,
+        })
+      : undefined;
+  } catch (error) {
+    console.warn("Failed to fetch notices:", error);
+    noticesRes = undefined;
+  }
+
   const events = eventsRes?.results || [];
   const notices = noticesRes?.results || [];
   const featuredNotice = notices.find((n) => n.isFeatured && n.thumbnail);
@@ -103,9 +130,15 @@ export default async function HomePage() {
               <div className="w-44 h-44 md:w-56 md:h-56 rounded-full bg-background ring-4 ring-background shadow-sm overflow-hidden">
                 {hod?.photo ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={hod.photo} alt={hod?.name || "HOD"} className="w-full h-full object-cover" />
+                  <img
+                    src={hod.photo}
+                    alt={hod?.name || "HOD"}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Photo</div>
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    No Photo
+                  </div>
                 )}
               </div>
             </div>
@@ -141,7 +174,9 @@ export default async function HomePage() {
               <h3 className="text-sm tracking-widest text-primary font-semibold mb-2">
                 ABOUT DEPARTMENT
               </h3>
-              <h2 className="text-3xl font-bold mb-4">{dept?.name || "Our Department"}</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                {dept?.name || "Our Department"}
+              </h2>
               <div
                 className="text-muted-foreground leading-relaxed prose prose-sm prose-slate dark:prose-invert"
                 dangerouslySetInnerHTML={{
@@ -157,7 +192,10 @@ export default async function HomePage() {
               <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={dept?.thumbnail || "/university-campus-building-academic.jpg"}
+                  src={
+                    dept?.thumbnail ||
+                    "/university-campus-building-academic.jpg"
+                  }
                   alt={dept?.name || "Department"}
                   className="w-full h-full object-cover"
                 />
@@ -196,14 +234,22 @@ export default async function HomePage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h4 className="font-medium mb-0.5 text-foreground line-clamp-1">{n.title}</h4>
+                        <h4 className="font-medium mb-0.5 text-foreground line-clamp-1">
+                          {n.title}
+                        </h4>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-4 w-4" /> {new Date(n.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })}
+                          <Clock className="h-4 w-4" />{" "}
+                          {new Date(n.publishedAt).toLocaleDateString(
+                            undefined,
+                            { year: "numeric", month: "short", day: "2-digit" }
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {n.isFeatured && <Badge>Featured</Badge>}
-                        {n.category?.name && <Badge variant="outline">{n.category.name}</Badge>}
+                        {n.category?.name && (
+                          <Badge variant="outline">{n.category.name}</Badge>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -224,28 +270,34 @@ export default async function HomePage() {
               <div className="space-y-4">
                 {events
                   .filter((ev) => {
-                    const st = eventStatus(ev.eventStartDate, ev.eventEndDate).label;
+                    const st = eventStatus(
+                      ev.eventStartDate,
+                      ev.eventEndDate
+                    ).label;
                     return st === "Upcoming" || st === "Running";
                   })
                   .map((ev) => {
-                  const st = eventStatus(ev.eventStartDate, ev.eventEndDate);
-                  return (
-                    <div
-                      key={ev.uuid}
-                      className="p-4 border border-border rounded-lg hover:bg-card transition-colors bg-background"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-medium mb-1 text-foreground">{ev.title}</h4>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Clock className="h-4 w-4" /> {ev.eventStartDate} – {ev.eventEndDate}
-                          </p>
+                    const st = eventStatus(ev.eventStartDate, ev.eventEndDate);
+                    return (
+                      <div
+                        key={ev.uuid}
+                        className="p-4 border border-border rounded-lg hover:bg-card transition-colors bg-background"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-medium mb-1 text-foreground">
+                              {ev.title}
+                            </h4>
+                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-4 w-4" /> {ev.eventStartDate}{" "}
+                              – {ev.eventEndDate}
+                            </p>
+                          </div>
+                          <Badge variant={st.variant}>{st.label}</Badge>
                         </div>
-                        <Badge variant={st.variant}>{st.label}</Badge>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
           </div>
@@ -255,18 +307,26 @@ export default async function HomePage() {
       {/* Featured Sections moved last */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">Discover Our Department</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">
+            Discover Our Department
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="hover:shadow-lg transition-shadow bg-card border-border">
               <CardHeader>
                 <BookOpen className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-card-foreground">Academic Programs</CardTitle>
+                <CardTitle className="text-card-foreground">
+                  Academic Programs
+                </CardTitle>
                 <CardDescription>
-                  Comprehensive undergraduate and graduate programs in applied sciences
+                  Comprehensive undergraduate and graduate programs in applied
+                  sciences
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
+                >
                   <Link href="/programs">View Programs</Link>
                 </Button>
               </CardContent>
@@ -275,11 +335,18 @@ export default async function HomePage() {
             <Card className="hover:shadow-lg transition-shadow bg-card border-border">
               <CardHeader>
                 <Users className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-card-foreground">Faculty & Staff</CardTitle>
-                <CardDescription>Meet our distinguished faculty and dedicated staff members</CardDescription>
+                <CardTitle className="text-card-foreground">
+                  Faculty & Staff
+                </CardTitle>
+                <CardDescription>
+                  Meet our distinguished faculty and dedicated staff members
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
+                >
                   <Link href="/faculty">Meet Our Team</Link>
                 </Button>
               </CardContent>
@@ -288,11 +355,18 @@ export default async function HomePage() {
             <Card className="hover:shadow-lg transition-shadow bg-card border-border">
               <CardHeader>
                 <Award className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-card-foreground">Research Excellence</CardTitle>
-                <CardDescription>Cutting-edge research projects and innovative solutions</CardDescription>
+                <CardTitle className="text-card-foreground">
+                  Research Excellence
+                </CardTitle>
+                <CardDescription>
+                  Cutting-edge research projects and innovative solutions
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
+                >
                   <Link href="/research">Explore Research</Link>
                 </Button>
               </CardContent>
