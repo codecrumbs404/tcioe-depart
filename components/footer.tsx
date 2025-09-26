@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Mail, Phone, MapPin, X } from "lucide-react";
 import { useDepartmentContext } from "@/providers/department-provider";
 import { DEPARTMENT_CODE } from "@/lib/env";
 import { useDepartmentNotices } from "@/hooks/use-department";
 import { useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export function Footer() {
   const { data: dept } = useDepartmentContext();
@@ -32,15 +32,21 @@ export function Footer() {
       {/* Global Featured Notice Modal */}
       {featured && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="sm:max-w-3xl">
-            <div className="rounded-md overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={featured.thumbnail as string}
-                alt={featured.title}
-                className="w-full h-auto"
-              />
-            </div>
+          <DialogContent className="relative bg-transparent border-none p-0 shadow-none sm:max-w-5xl md:max-w-6xl w-auto rounded-md overflow-hidden">
+            <DialogTitle className="sr-only">{featured.title}</DialogTitle>
+            <button
+              aria-label="Close"
+              onClick={() => setOpen(false)}
+              className="absolute -top-3 -right-3 z-10 rounded-full bg-black text-white p-2 shadow-md hover:bg-black/90 focus:outline-none"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={featured.thumbnail as string}
+              alt={featured.title}
+              className="w-[min(100vw-2rem,1200px)] max-h-[90vh] h-auto object-contain"
+            />
           </DialogContent>
         </Dialog>
       )}

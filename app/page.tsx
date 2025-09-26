@@ -188,7 +188,12 @@ export default async function HomePage() {
                   </div>
                 )}
                 {notices.map((n) => (
-                  <div key={n.uuid} className="p-3 border border-dashed border-border rounded-lg hover:bg-muted/30 transition-colors bg-background/80">
+                  <Link
+                    href="/notices"
+                    key={n.uuid}
+                    className="block p-3 border border-dashed border-border rounded-lg hover:bg-muted/30 transition-colors bg-background/80 cursor-pointer"
+                    aria-label={`Open notices page`}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h4 className="font-medium mb-0.5 text-foreground line-clamp-1">{n.title}</h4>
@@ -201,7 +206,7 @@ export default async function HomePage() {
                         {n.category?.name && <Badge variant="outline">{n.category.name}</Badge>}
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
