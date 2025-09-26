@@ -18,8 +18,8 @@ async function proxy(url: string) {
   return res
 }
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const { slug } = params
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const url = new URL(req.url)
   const qs = buildQuery(url.searchParams)
 
@@ -66,4 +66,3 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   }
   return new Response(JSON.stringify(result), { status: 200, headers: { 'content-type': 'application/json' } })
 }
-

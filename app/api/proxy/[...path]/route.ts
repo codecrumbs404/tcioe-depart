@@ -3,8 +3,9 @@ import { API_BASE } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/')
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathParts } = await params
+  const path = pathParts.join('/')
   const url = new URL(req.url)
   const qs = url.search ? url.search : ''
   const target = `${API_BASE.replace(/\/$/, '')}/${path}${qs}`

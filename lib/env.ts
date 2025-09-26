@@ -1,5 +1,3 @@
-export const USE_MOCK =
-  (process.env.NEXT_PUBLIC_USE_MOCK || "").toLowerCase() === "true";
 export const USE_PROXY =
   (process.env.NEXT_PUBLIC_USE_PROXY || "").toLowerCase() === "true";
 

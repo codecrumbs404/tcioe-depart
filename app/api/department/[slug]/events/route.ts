@@ -12,8 +12,8 @@ function buildQuery(params: URLSearchParams) {
   return qs ? `?${qs}` : ''
 }
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const { slug } = params
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const url = new URL(req.url)
   const qs = buildQuery(url.searchParams)
   const target = `${API_BASE.replace(/\/$/, '')}${API_PUBLIC_PREFIX}/departments/${slug}/events${qs}`
@@ -22,4 +22,3 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   const ct = res.headers.get('content-type') || 'application/json'
   return new Response(body, { status: res.status, statusText: res.statusText, headers: { 'content-type': ct } })
 }
-

@@ -32,7 +32,11 @@ export function Footer() {
       {/* Global Featured Notice Modal */}
       {featured && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="relative bg-transparent border-none p-0 shadow-none sm:max-w-5xl md:max-w-6xl w-auto rounded-md overflow-hidden">
+          <DialogContent
+            className="relative bg-transparent border-none p-0 shadow-none sm:max-w-5xl md:max-w-6xl w-auto rounded-md overflow-hidden"
+            aria-label={featured.title}
+            showCloseButton={false}
+          >
             <DialogTitle className="sr-only">{featured.title}</DialogTitle>
             <button
               aria-label="Close"
