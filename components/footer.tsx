@@ -6,7 +6,7 @@ import { useDepartmentContext } from "@/providers/department-provider";
 import { DEPARTMENT_CODE } from "@/lib/env";
 import { useDepartmentNotices } from "@/hooks/use-department";
 import { useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import FeaturedNoticeModal from "@/components/featured-notice-modal";
 
 export function Footer() {
   const { data: dept } = useDepartmentContext();
@@ -31,28 +31,12 @@ export function Footer() {
     >
       {/* Global Featured Notice Modal */}
       {featured && (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent
-            className="relative bg-transparent border-none p-0 shadow-none sm:max-w-5xl md:max-w-6xl w-auto rounded-md overflow-hidden"
-            aria-label={featured.title}
-            showCloseButton={false}
-          >
-            <DialogTitle className="sr-only">{featured.title}</DialogTitle>
-            <button
-              aria-label="Close"
-              onClick={() => setOpen(false)}
-              className="absolute -top-3 -right-3 z-10 rounded-full bg-black text-white p-2 shadow-md hover:bg-black/90 focus:outline-none"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={featured.thumbnail as string}
-              alt={featured.title}
-              className="w-[min(100vw-2rem,1200px)] max-h-[90vh] h-auto object-contain"
-            />
-          </DialogContent>
-        </Dialog>
+        <FeaturedNoticeModal
+          open={open}
+          title={featured.title}
+          imageUrl={featured.thumbnail as string}
+          onClose={() => setOpen(false)}
+        />
       )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

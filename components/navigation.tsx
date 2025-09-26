@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDepartmentContext } from "@/providers/department-provider";
 import { Menu, X, ChevronDown } from "lucide-react";
+import AnnouncementsTicker from "@/components/announcements-ticker";
 
 const navigationItems = [
   { name: "Home", href: "/" },
@@ -143,50 +144,7 @@ export function Navigation() {
           </div>
         </nav>
 
-        <div className="bg-accent text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm font-medium">Announcements</span>
-                <button className="text-white/80 hover:text-white">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="text-center flex-1">
-                <span className="text-sm font-medium">
-                  Department Research Conference 2025
-                </span>
-              </div>
-              <button className="text-white/80 hover:text-white">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+        <AnnouncementsTicker />
       </header>
     </>
   );
